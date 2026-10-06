@@ -121,6 +121,30 @@
     line-height: 1.55;
 }
 
+.lawyer-document-selection {
+    margin-top: 8px;
+    color: var(--text-gray);
+    font-size: 0.82rem;
+}
+
+.lawyer-consent-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 4px 0 18px;
+    color: var(--text-gray);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.lawyer-consent-field input {
+    flex: 0 0 auto;
+    width: 17px;
+    height: 17px;
+    margin-top: 2px;
+    accent-color: var(--gold-color);
+}
+
 .lawyer-submit-button {
     width: 100%;
     min-height: 48px;

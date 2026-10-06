@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your LEX lawyer workspace.">
+    <title>Lawyer Dashboard | LEX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/landing_page.css">
+    <link rel="stylesheet" href="assets/css/lawyer-dashboard.css">
+    <script src="assets/js/lawyer-dashboard.js" defer></script>
+</head>
+<body class="lawyer-dashboard-page">
+    <div class="lawyer-dashboard-layout">
+        <aside class="lawyer-sidebar" aria-label="Lawyer workspace navigation">
+            <a class="lawyer-dashboard-brand" href="index.html" aria-label="LEX home">
+                <img src="assets/images/navigation_logo.png" alt="LEX">
+            </a>
+
+            <p class="lawyer-sidebar-label">Workspace</p>
+            <nav class="lawyer-side-nav">
+                <button class="lawyer-nav-link is-active" type="button" data-section="overview">Overview</button>
+                <button class="lawyer-nav-link" type="button" data-section="common-chat">Common Chat</button>
+                <button class="lawyer-nav-link" type="button" data-section="notifications">Notifications</button>
+                <button class="lawyer-nav-link" type="button" data-section="my-room">My Room</button>
+                <button class="lawyer-nav-link" type="button" data-section="services">Services</button>
+                <button class="lawyer-nav-link" type="button" data-section="personal-chat">Personal Chat</button>
+                <button class="lawyer-nav-link" type="button" data-section="vault">Vault</button>
+            </nav>
+
+            <button class="lawyer-nav-link lawyer-signout" type="button" id="lawyerSignOut">Sign out</button>
+        </aside>
+
+        <main class="lawyer-dashboard-main">
+            <header class="lawyer-topbar">
+                <a class="lawyer-mobile-brand" href="index.html">LEX</a>
+                <div class="lawyer-account">
+                    <div>
+                        <strong id="lawyerHeaderName">Lawyer</strong>
+                        <span id="lawyerHeaderStatus">Application pending</span>
+                    </div>
+                    <button class="lawyer-avatar" type="button" data-section="profile" id="lawyerAvatar" aria-label="Open profile">L</button>
+                </div>
+            </header>
+
+            <section class="lawyer-content-section is-active" id="overview" aria-labelledby="overviewTitle">
+                <div class="lawyer-page-heading">
+                    <p class="lawyer-eyebrow">Lawyer workspace</p>
+                    <h1 id="overviewTitle">Welcome, <span id="lawyerWelcomeName">Counsel</span></h1>
+                    <p>Your overview for cases, client messages, and professional details.</p>
+                </div>
+
+                <div class="lawyer-status-banner" id="verificationBanner" role="status">
+                    <span class="lawyer-status-dot" aria-hidden="true"></span>
+                    <div>
+                        <strong id="verificationTitle">Verification pending</strong>
+                        <p id="verificationDescription">Your application is saved in this browser only. This demo does not submit applications for review.</p>
+                    </div>
+                </div>
+
+                <div class="lawyer-stat-grid">
+                    <article class="lawyer-stat-card">
+                        <span class="lawyer-stat-label">Example open cases</span>
+                        <strong id="openCaseCount">3</strong>
+                        <p>Illustrative count only; no cases are assigned in this demo</p>
+                    </article>
+                    <article class="lawyer-stat-card">
+                        <span class="lawyer-stat-label">Example unread messages</span>
+                        <strong id="unreadMessageCount">2</strong>
+                        <p>Illustrative count only; messaging is not connected</p>
+                    </article>
+                    <article class="lawyer-stat-card">
+                        <span class="lawyer-stat-label">Verification</span>
+                        <strong class="lawyer-verification-value" id="verificationValue">Pending</strong>
+                        <p id="verificationNote">Your profile is not yet shown as verified</p>
+                    </article>
+                </div>
+
+                <div class="lawyer-overview-grid">
+                    <section class="lawyer-panel lawyer-cases-panel" aria-labelledby="casesTitle">
+                        <div class="lawyer-panel-heading">
+                            <div>
+                                <h2 id="casesTitle">Open cases</h2>
+                                <p>Example questions from anonymous clients</p>
+                            </div>
+                            <span class="lawyer-panel-count">Sample</span>
+                        </div>
+                        <div class="lawyer-case-list">
+                            <article class="lawyer-case-card">
+                                <div class="lawyer-case-meta"><span>Anon #4821</span><time>2h ago</time></div>
+                                <h3>Landlord is keeping my full deposit</h3>
+                                <p>Client says the flat was left clean, but the landlord cites general wear.</p>
+                                <div class="lawyer-case-tags"><span>Tenancy</span><span class="is-urgent">Urgent</span></div>
+                            </article>
+                            <article class="lawyer-case-card">
+                                <div class="lawyer-case-meta"><span>Anon #3307</span><time>5h ago</time></div>
+                                <h3>Dismissed after raising an overtime complaint</h3>
+                                <p>Client was let go a week after asking about unpaid overtime.</p>
+                                <div class="lawyer-case-tags"><span>Employment</span><span>New</span></div>
+                            </article>
+                            <article class="lawyer-case-card">
+                                <div class="lawyer-case-meta"><span>Anon #9154</span><time>Yesterday</time></div>
+                                <h3>Contractor stopped responding after an advance</h3>
+                                <p>Work stopped after a 50% advance and calls have gone unanswered.</p>
+                                <div class="lawyer-case-tags"><span>Consumer</span><span>Contracts</span></div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="lawyer-panel lawyer-profile-summary" aria-labelledby="profileSummaryTitle">
+                        <div class="lawyer-panel-heading">
+                            <div>
+                                <h2 id="profileSummaryTitle">Professional profile</h2>
+                                <p>Your application details</p>
+                            </div>
+                            <button type="button" class="lawyer-text-button" data-section="profile">View profile</button>
+                        </div>
+                        <dl class="lawyer-summary-list">
+                            <div><dt>Practice area</dt><dd id="summaryPractice">Not provided</dd></div>
+                            <div><dt>Jurisdiction</dt><dd id="summaryJurisdiction">Not provided</dd></div>
+                            <div><dt>Experience</dt><dd id="summaryExperience">Not provided</dd></div>
+                        </dl>
+                    </section>
+                </div>
+
+                <section class="lawyer-panel lawyer-leaderboard" aria-labelledby="leaderboardTitle">
+                    <div class="lawyer-panel-heading">
+                        <div>
+                            <h2 id="leaderboardTitle">Top Pro-Bono Lawyers</h2>
+                            <p>Example free hours given this month</p>
+                        </div>
+                        <span class="lawyer-panel-count">Sample data</span>
+                    </div>
+                    <ol class="lawyer-leaderboard-list">
+                        <li><span class="lawyer-rank">#1</span><span><strong>Priya Nair</strong><small>Family law · 18 cases</small></span><b>64 hrs</b></li>
+                        <li><span class="lawyer-rank">#2</span><span><strong>Marcus Webb</strong><small>Employment · 15 cases</small></span><b>52 hrs</b></li>
+                        <li><span class="lawyer-rank">#3</span><span><strong>Elena Rossi</strong><small>Tenancy · 12 cases</small></span><b>47 hrs</b></li>
+                        <li class="lawyer-leaderboard-you"><span class="lawyer-rank">#8</span><span><strong id="leaderboardLawyerName">Lawyer</strong><small>Your sample ranking</small></span><b>18 hrs</b></li>
+                    </ol>
+                    <p class="lawyer-demo-note">Ranking and hours are illustrative only; they are not connected to real lawyer activity.</p>
+                </section>
+
+                <section class="lawyer-panel lawyer-truth-panel" aria-labelledby="truthHubTitle">
+                    <div class="lawyer-panel-heading">
+                        <div>
+                            <h2 id="truthHubTitle">Truth Hub Requests</h2>
+                            <p>Example legal claims for a lawyer review</p>
+                        </div>
+                        <span class="lawyer-panel-count" id="truthHubCount">3 pending</span>
+                    </div>
+                    <p class="lawyer-demo-note">Sample claims only. Your selections below are local demo actions, not published legal fact-checks or legal advice.</p>
+                    <div class="lawyer-truth-list" id="truthHubList">
+                        <article class="lawyer-truth-card" data-request-id="TH-204">
+                            <div class="lawyer-truth-meta"><span>Anon #5530 · Tenancy</span><span class="lawyer-truth-status">Pending review</span></div>
+                            <blockquote>“Landlords must return your deposit within 24 hours or pay you double.”</blockquote>
+                            <p>Client asks: Is this legal?</p>
+                            <div class="lawyer-truth-actions"><button type="button" data-verdict="Supported">Mark as true</button><button type="button" data-verdict="Misleading">Mark as fake</button></div>
+                        </article>
+                        <article class="lawyer-truth-card" data-request-id="TH-203">
+                            <div class="lawyer-truth-meta"><span>Anon #2916 · Employment</span><span class="lawyer-truth-status">Pending review</span></div>
+                            <blockquote>“You cannot be fired while you are on sick leave, no matter what.”</blockquote>
+                            <p>Client asks: Is this true?</p>
+                            <div class="lawyer-truth-actions"><button type="button" data-verdict="Supported">Mark as true</button><button type="button" data-verdict="Misleading">Mark as fake</button></div>
+                        </article>
+                        <article class="lawyer-truth-card" data-request-id="TH-202">
+                            <div class="lawyer-truth-meta"><span>Anon #7741 · Consumer</span><span class="lawyer-truth-status">Pending review</span></div>
+                            <blockquote>“Shops are not allowed to refuse refunds on sale items.”</blockquote>
+                            <p>Client asks: Is this legal?</p>
+                            <div class="lawyer-truth-actions"><button type="button" data-verdict="Supported">Mark as true</button><button type="button" data-verdict="Misleading">Mark as fake</button></div>
+                        </article>
+                    </div>
+                    <p class="lawyer-truth-all-clear" id="truthHubAllClear" hidden>All sample requests have a local demo verdict.</p>
+                </section>
+                <p class="lawyer-demo-note">Prototype workspace: sample cases and leaderboard are illustrative. Messaging, case assignments, and verification require a connected LEX backend.</p>
+            </section>
+
+            <section class="lawyer-content-section" id="common-chat" hidden>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Common Chat</h1><p>A shared room for professional discussion with other verified lawyers.</p></div>
+                <div class="lawyer-panel lawyer-placeholder"><h2>Common Chat is not connected yet</h2><p>When messaging is available, you’ll be able to discuss general legal topics here.</p></div>
+            </section>
+
+            <section class="lawyer-content-section" id="notifications" hidden>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Notifications</h1><p>Updates about your cases and account.</p></div>
+                <div class="lawyer-panel lawyer-placeholder"><h2>You’re all caught up</h2><p>New updates will appear here when notifications are connected.</p></div>
+            </section>
+
+            <section class="lawyer-content-section" id="my-room" hidden>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>My Room</h1><p>Your calendar, reminders, and case documents in one personal workspace.</p></div>
+                <div class="lawyer-room-grid">
+                    <div class="lawyer-room-column">
+                        <section class="lawyer-panel lawyer-calendar-panel" aria-labelledby="calendarTitle">
+                            <div class="lawyer-panel-heading">
+                                <div><h2 id="calendarTitle">Calendar</h2><p>Select a date to add a note or reminder.</p></div>
+                            </div>
+                            <div class="lawyer-calendar-controls">
+                                <button type="button" id="calendarPrevious" aria-label="Previous month">‹</button>
+                                <strong id="calendarMonth" aria-live="polite"></strong>
+                                <button type="button" id="calendarNext" aria-label="Next month">›</button>
+                                <button type="button" id="calendarToday">Today</button>
+                            </div>
+                            <div class="lawyer-calendar-weekdays" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+                            <div class="lawyer-calendar-grid" id="calendarGrid"></div>
+                        </section>
+                        <section class="lawyer-panel">
+                            <div class="lawyer-panel-heading"><div><h2>Upcoming reminders</h2><p>Your saved notes, soonest first.</p></div></div>
+                            <ul class="lawyer-reminder-list" id="reminderList"></ul>
+                        </section>
+                    </div>
+                    <section class="lawyer-panel lawyer-documents-panel" aria-labelledby="caseDocumentsTitle">
+                        <div class="lawyer-panel-heading">
+                            <div><h2 id="caseDocumentsTitle">Case documents</h2><p>Temporary files for this browser tab only.</p></div>
+                            <button type="button" class="lawyer-primary-button" id="uploadDocumentButton">Upload document</button>
+                            <input type="file" id="caseDocumentInput" accept=".pdf,image/*,.doc,.docx" multiple hidden>
+                        </div>
+                        <p class="lawyer-storage-warning">Demo only: files are not uploaded or securely stored. Do not add confidential client documents.</p>
+                        <aside class="lawyer-upgrade-banner">
+                            <div><strong>Need more storage?</strong><p>Premium plans and payments are not connected in this prototype.</p></div>
+                            <button type="button" class="lawyer-secondary-button" id="lawyerUpgradeButton">Explore Premium</button>
+                        </aside>
+                        <ul class="lawyer-document-list" id="caseDocumentList"><li class="lawyer-list-empty">No documents added in this session.</li></ul>
+                    </section>
+                </div>
+                <dialog class="lawyer-reminder-dialog" id="reminderDialog" aria-labelledby="reminderDialogTitle">
+                    <form id="reminderForm">
+                        <div class="lawyer-panel-heading"><div><p class="lawyer-eyebrow">Notes and reminders</p><h2 id="reminderDialogTitle">Selected date</h2></div><button type="button" id="closeReminderDialog" aria-label="Close">×</button></div>
+                        <ul class="lawyer-dialog-reminders" id="selectedDateReminders"></ul>
+                        <label for="reminderText">Add a note or reminder<textarea id="reminderText" maxlength="200" required placeholder="Add a short reminder (do not include confidential client details)."></textarea></label>
+                        <label for="reminderTime">Time (optional)<input type="time" id="reminderTime"></label>
+                        <p class="lawyer-form-status" id="reminderStatus" role="status" hidden></p>
+                        <div class="lawyer-dialog-actions"><button type="button" class="lawyer-secondary-button" id="doneReminderDialog">Done</button><button type="submit" class="lawyer-primary-button">Save reminder</button></div>
+                    </form>
+                </dialog>
+            </section>
+
+            <section class="lawyer-content-section" id="services" hidden>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Services</h1><p>Show the legal support you offer and keep it updated for prospective clients.</p></div>
+                <div class="lawyer-services-layout">
+                    <section class="lawyer-panel">
+                        <div class="lawyer-panel-heading">
+                            <div>
+                                <h2>My legal services</h2>
+                                <p>These are sample offerings that are stored locally in this browser.</p>
+                            </div>
+                            <span class="lawyer-panel-count" id="serviceCount">0</span>
+                        </div>
+                        <ul class="lawyer-service-list" id="serviceList"></ul>
+                    </section>
+                    <section class="lawyer-panel">
+                        <div class="lawyer-panel-heading">
+                            <div>
+                                <h2>Add a service</h2>
+                                <p>List a practice area or legal support package.</p>
+                            </div>
+                        </div>
+                        <form class="lawyer-service-form" id="serviceForm">
+                            <label class="lawyer-field">
+                                <span>Service name</span>
+                                <input id="serviceName" name="serviceName" maxlength="80" placeholder="e.g. Property dispute advisory" required>
+                            </label>
+                            <label class="lawyer-field">
+                                <span>Category</span>
+                                <input id="serviceCategory" name="serviceCategory" maxlength="40" placeholder="e.g. Property law" required>
+                            </label>
+                            <label class="lawyer-field">
+                                <span>Short description</span>
+                                <textarea id="serviceDescription" name="serviceDescription" rows="4" maxlength="220" placeholder="Briefly explain what clients can expect." required></textarea>
+                            </label>
+                            <p class="lawyer-form-status" id="serviceStatus" role="status" hidden></p>
+                            <button type="submit" class="lawyer-primary-button">Add service</button>
+                        </form>
+                    </section>
+                </div>
+            </section>
+
+            <section class="lawyer-content-section" id="personal-chat" hidden>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Personal Chat</h1><p>Example one-to-one conversations with clients shown as anonymous IDs.</p></div>
+                <p class="lawyer-storage-warning">Sample conversations only. Messages typed here stay in this page session and are not sent to a client. Do not enter real client information.</p>
+                <div class="lawyer-chat-shell">
+                    <aside class="lawyer-chat-sidebar" aria-label="Conversations">
+                        <label class="lawyer-chat-search">Search conversations<input type="search" id="conversationSearch" placeholder="Search conversations"></label>
+                        <ul class="lawyer-conversation-list" id="conversationList"></ul>
+                    </aside>
+                    <section class="lawyer-chat-main" aria-label="Selected conversation">
+                        <header class="lawyer-chat-header"><span class="lawyer-chat-avatar" id="chatAvatar">48</span><div><h2 id="chatName">Anon #4821</h2><p id="chatSubtitle">Example conversation</p></div><div class="lawyer-chat-actions"><button type="button" data-chat-unavailable="Audio calls">Audio</button><button type="button" data-chat-unavailable="Video calls">Video</button></div></header>
+                        <div class="lawyer-chat-thread" id="chatThread" role="log" aria-live="polite"></div>
+                        <div class="lawyer-chat-tools"><button type="button" class="lawyer-secondary-button" id="summarizeChat">AI Summarize</button><span>AI service is not connected.</span></div>
+                        <form class="lawyer-chat-composer" id="chatForm">
+                            <button type="button" class="lawyer-chat-tool-button" data-chat-unavailable="Document attachments" aria-label="Attach document">Attach</button>
+                            <button type="button" class="lawyer-chat-tool-button" data-chat-unavailable="Camera" aria-label="Open camera">Camera</button>
+                            <input id="chatMessageInput" type="text" maxlength="500" placeholder="Type a demo message" aria-label="Message">
+                            <button type="button" class="lawyer-chat-tool-button" data-chat-unavailable="Voice notes" aria-label="Record voice note">Voice</button>
+                            <button type="submit" class="lawyer-primary-button">Send</button>
+                        </form>
+                        <p class="lawyer-form-status" id="chatStatus" role="status" hidden></p>
+                    </section>
+                </div>
+            </section>
+
+            <section class="lawyer-content-section" id="vault" hidden>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Vault</h1><p>Manage documents related to your legal work.</p></div>
+                <div class="lawyer-panel lawyer-placeholder"><h2>Your vault is empty</h2><p>Secure document storage will be available when the vault is connected.</p></div>
+            </section>
+
+            <section class="lawyer-content-section" id="profile" hidden>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Lawyer workspace</p><h1>Professional profile</h1><p>Details from your saved lawyer application.</p></div>
+                <div class="lawyer-panel">
+                    <div class="lawyer-profile-heading">
+                        <span class="lawyer-profile-avatar" id="lawyerProfileInitials">L</span>
+                        <div><h2 id="profileName">Lawyer</h2><span class="lawyer-profile-status" id="profileStatus">Pending verification</span></div>
+                    </div>
+                    <dl class="lawyer-profile-details">
+                        <div><dt>Email</dt><dd id="profileEmail">Not provided</dd></div>
+                        <div><dt>Mobile</dt><dd id="profileMobile">Not provided</dd></div>
+                        <div><dt>Bar registration</dt><dd id="profileBarRegistration">Not provided</dd></div>
+                        <div><dt>Practice area</dt><dd id="profilePractice">Not provided</dd></div>
+                        <div><dt>Jurisdiction</dt><dd id="profileJurisdiction">Not provided</dd></div>
+                        <div><dt>Experience</dt><dd id="profileExperience">Not provided</dd></div>
+                    </dl>
+                </div>
+                <p class="lawyer-demo-note">Profile details are stored in this browser for this demo. Do not enter sensitive client information.</p>
+            </section>
+        </main>
+    </div>
+    <button class="lawyer-floating-chat" type="button" id="openCommonChat" aria-label="Open Common Chat"><span class="lawyer-sr-only">Common Chat</span>Chat</button>
+    <div class="lawyer-toast" id="lawyerToast" role="status" aria-live="polite"></div>
+</body>
+</html>

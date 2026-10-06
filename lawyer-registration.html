@@ -79,7 +79,19 @@
                     </div>
                 </fieldset>
 
-                <p class="lawyer-demo-notice">Demo only: this application is saved in this browser and is not sent to LEX. Document verification and account activation need a secure backend.</p>
+                <fieldset>
+                    <legend>Verification document</legend>
+                    <label class="lawyer-field">
+                        <span>Bar license or government ID (PDF or image)</span>
+                        <input id="verificationDocument" name="verificationDocument" type="file" accept=".pdf,image/*" required>
+                    </label>
+                    <p class="lawyer-document-selection" id="verificationDocumentName" aria-live="polite">No document selected.</p>
+                    <p class="lawyer-demo-notice">Demo only: selecting a file does not upload it. The application is saved in this browser; the document is not stored or sent. Do not use confidential documents.</p>
+                </fieldset>
+                <label class="lawyer-consent-field">
+                    <input name="consent" type="checkbox" required>
+                    <span>I confirm these details are accurate and agree to be verified.</span>
+                </label>
                 <button class="lawyer-submit-button" type="submit">Save application</button>
             </form>
             <p class="lawyer-application-status" id="applicationStatus" role="status" aria-live="polite" hidden></p>

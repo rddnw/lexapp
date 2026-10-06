@@ -9,6 +9,7 @@ LEX-APP-/
 ├── index.html                 # Landing page and sign-in/sign-up flow
 ├── dashboard.html             # Client dashboard
 ├── lawyer-registration.html   # Lawyer professional application
+├── lawyer-dashboard.html      # Lawyer workspace preview
 ├── mobile/                    # Expo / React Native mobile app
 └── assets/
     ├── css/                   # Page stylesheets and font stylesheets
@@ -31,8 +32,7 @@ Open the landing page at:
 
 - <http://localhost:8000/>
 
-The dashboard is at <http://localhost:8000/dashboard.html>. Client sign-up and sign-in navigate there after saving the demo account in browser storage. The dashboard provides quick access to legal documents, lawyer search, and a LEX AI assistant preview. Selecting the lawyer role opens `lawyer-registration.html`.
-
+The client dashboard is at <http://localhost:8000/dashboard.html>. Client sign-up and sign-in navigate there after saving the demo account in browser storage. The dashboard provides quick access to legal documents, lawyer search, and a LEX AI assistant preview. Selecting the lawyer role opens `lawyer-registration.html`; after saving an application, the lawyer can open the workspace preview at <http://localhost:8000/lawyer-dashboard.html>. The lawyer workspace includes a sample case overview, pro-bono leaderboard, Truth Hub demo decisions, profile, services management, calendar and browser-saved reminders, temporary in-tab document handling, and a sample personal chat.
 Stop the local server with `Ctrl+C`.
 
 ## Mobile app preview
@@ -48,5 +48,5 @@ Install Expo Go on an Android or iOS phone and scan the QR code shown in the ter
 
 ## Notes
 
-- The website and mobile app are front-end previews; accounts, AI answers, lawyer listings, and cross-device sync need a shared backend before production.
+- The website and mobile app are front-end previews; accounts, lawyer verification, case assignments, messaging, AI answers, lawyer listings, secure document storage, payments, and cross-device sync need a shared backend before production. Lawyer cases, leaderboard entries, Truth Hub claims, and chats are sample data. Reminder text is stored in this browser; selected files and chat messages are only held in the current page session.
 - Keep HTML pages at the project root and place stylesheets, scripts, images, and fonts in their corresponding `assets/` folders.

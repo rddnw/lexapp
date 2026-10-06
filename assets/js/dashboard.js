@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    if (user.role === 'lawyer') {
+        window.location.replace('lawyer-dashboard.html');
+        return;
+    }
+
     // Load User Details
     const firstName = user.name.split(" ")[0];
     document.getElementById('dashHeaderUserName').innerText = firstName;

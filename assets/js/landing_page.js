@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if user is already logged in -> Redirect directly to Dashboard
     const existingUser = JSON.parse(localStorage.getItem('lexUser'));
     if (existingUser) {
-        window.location.href = 'dashboard.html';
+        window.location.href = existingUser.role === 'lawyer' ? 'lawyer-dashboard.html' : 'dashboard.html';
         return;
     }
 
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('lexUser', JSON.stringify(existingUser));
                 loginForm.reset();
                 closeModal(signInModal);
-                window.location.href = 'dashboard.html';
+                window.location.href = existingUser.role === 'lawyer' ? 'lawyer-dashboard.html' : 'dashboard.html';
             } else {
                 alert("Please enter a valid email.");
             }
