@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/landing_page.css">
     <link rel="stylesheet" href="assets/css/lawyer-registration.css">
+    <script src="assets/js/config.js" defer></script>
+    <script src="assets/js/api.js" defer></script>
     <script src="assets/js/lawyer-registration.js" defer></script>
 </head>
 <body class="lawyer-registration-page">
@@ -32,19 +34,15 @@
                     <div class="lawyer-form-grid">
                         <label class="lawyer-field">
                             <span>Full legal name</span>
-                            <input name="name" autocomplete="name" required>
+                            <input id="applicationName" autocomplete="name" disabled>
                         </label>
                         <label class="lawyer-field">
                             <span>Email address</span>
-                            <input name="email" type="email" autocomplete="email" required>
+                            <input id="applicationEmail" type="email" autocomplete="email" disabled>
                         </label>
                         <label class="lawyer-field">
                             <span>Mobile number</span>
                             <input name="mobile" type="tel" autocomplete="tel" inputmode="tel" pattern="07[01245678][0-9]{7}" placeholder="07XXXXXXXX" required>
-                        </label>
-                        <label class="lawyer-field">
-                            <span>NIC number</span>
-                            <input name="nic" autocomplete="off" pattern="([0-9]{9}[xXvV]|[0-9]{12})" required>
                         </label>
                     </div>
                 </fieldset>
@@ -54,15 +52,15 @@
                     <div class="lawyer-form-grid">
                         <label class="lawyer-field">
                             <span>Bar registration number</span>
-                            <input name="barRegistration" autocomplete="off" required>
+                            <input name="bar_registration" autocomplete="off" required>
                         </label>
                         <label class="lawyer-field">
                             <span>Years of legal experience</span>
-                            <input name="experience" type="number" min="0" max="70" inputmode="numeric" required>
+                            <input name="experience_years" type="number" min="0" max="70" inputmode="numeric" required>
                         </label>
                         <label class="lawyer-field">
                             <span>Primary practice area</span>
-                            <select name="practiceArea" required>
+                            <select name="practice_area" required>
                                 <option value="" selected disabled>Select a practice area</option>
                                 <option>Corporate and business law</option>
                                 <option>Property and real estate</option>
@@ -82,11 +80,11 @@
                 <fieldset>
                     <legend>Verification document</legend>
                     <label class="lawyer-field">
-                        <span>Bar license or government ID (PDF or image)</span>
-                        <input id="verificationDocument" name="verificationDocument" type="file" accept=".pdf,image/*" required>
+                        <span>Bar license or professional verification document (PDF, JPEG, or PNG)</span>
+                        <input id="verificationDocument" name="verification_document" type="file" accept=".pdf,.jpg,.jpeg,.png" required>
                     </label>
                     <p class="lawyer-document-selection" id="verificationDocumentName" aria-live="polite">No document selected.</p>
-                    <p class="lawyer-demo-notice">Demo only: selecting a file does not upload it. The application is saved in this browser; the document is not stored or sent. Do not use confidential documents.</p>
+                    <p class="lawyer-demo-notice">Your document is uploaded to private Supabase Storage for administrator review. Do not upload client documents.</p>
                 </fieldset>
                 <label class="lawyer-consent-field">
                     <input name="consent" type="checkbox" required>

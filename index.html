@@ -43,6 +43,8 @@
         </div>
     </div>
 
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
     <script src="assets/js/landing_page.js"></script>
     <!-- Services Section -->
     <section class="services-section reveal-3d">
@@ -487,24 +489,14 @@
                     <span class="error-text">Please enter your full name.</span>
                 </div>
                 <div class="input-group">
-                    <label>Mobile Number</label>
-                    <input type="tel" id="mobileNum" placeholder="07X XXX XXXX">
-                    <span class="error-text">Please enter a valid mobile number.</span>
-                </div>
-                <div class="input-group">
-                    <label>NIC Number</label>
-                    <input type="text" id="nicNum" placeholder="National Identity Card Number">
-                    <span class="error-text">Please enter a valid NIC.</span>
-                </div>
-                <div class="input-group">
                     <label>Email Address</label>
-                    <input type="email" id="emailAdd" placeholder="you@example.com">
+                    <input type="email" id="emailAdd" placeholder="you@example.com" autocomplete="email">
                     <span class="error-text">Please enter a valid email.</span>
                 </div>
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" id="passWord" placeholder="Create a strong password">
-                    <span class="error-text">Password must be at least 6 characters.</span>
+                    <input type="password" id="passWord" placeholder="Create a strong password" autocomplete="new-password">
+                    <span class="error-text">Password must be at least 8 characters.</span>
                 </div>
                 <button type="submit" class="submit-btn">Sign Up Securely</button>
             </form>
@@ -522,12 +514,12 @@
             <form id="loginForm" novalidate>
                 <div class="input-group">
                     <label>Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="you@example.com">
+                    <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
                     <span class="error-text">Please enter a valid email.</span>
                 </div>
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter your password">
+                    <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
                     <span class="error-text">Please enter your password.</span>
                 </div>
                 <button type="submit" class="submit-btn">Sign In</button>

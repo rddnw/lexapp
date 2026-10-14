@@ -17,6 +17,142 @@
     height: 17px;
 }
 
+.verified-lawyer-directory {
+    margin-top: 32px;
+    padding: 24px;
+    border: 1px solid var(--dash-border);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.verified-lawyer-directory h3 {
+    color: var(--dash-text-dark);
+    margin-bottom: 6px;
+}
+
+.verified-lawyer-directory > p {
+    color: var(--dash-text-muted);
+    margin-bottom: 14px;
+}
+
+.verified-lawyer-list {
+    display: grid;
+    gap: 12px;
+}
+
+.verified-lawyer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px;
+    border: 1px solid var(--dash-border);
+    border-radius: 12px;
+}
+
+.verified-lawyer-card button,
+.client-chat-panel form button {
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: var(--dash-navy);
+    color: #fff;
+    cursor: pointer;
+}
+
+.client-chat-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(7, 18, 33, 0.6);
+}
+
+.client-chat-modal.is-visible {
+    display: flex;
+}
+
+.client-chat-panel {
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 520px);
+    max-height: min(80vh, 680px);
+    padding: 20px;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.client-chat-panel header,
+.client-chat-panel form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.client-chat-panel header {
+    justify-content: space-between;
+}
+
+.client-chat-panel header button {
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.client-chat-panel > p {
+    margin: 12px 0;
+    color: var(--dash-text-muted);
+}
+
+.client-chat-thread {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 180px;
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid var(--dash-border);
+    border-radius: 10px;
+}
+
+.client-chat-message {
+    align-self: flex-start;
+    max-width: 85%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f0eee8;
+    overflow-wrap: anywhere;
+}
+
+.client-chat-message.is-own {
+    align-self: flex-end;
+    background: #e9dfc6;
+}
+
+.client-chat-panel form {
+    margin-top: 12px;
+}
+
+.client-chat-panel form input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid var(--dash-border);
+    border-radius: 8px;
+}
+
+@media (max-width: 560px) {
+    .verified-lawyer-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;

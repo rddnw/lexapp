@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Review LEX lawyer verification applications.">
+    <title>Application Review | LEX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/admin.css">
+    <script src="assets/js/config.js" defer></script>
+    <script src="assets/js/api.js" defer></script>
+    <script src="assets/js/admin.js" defer></script>
+</head>
+<body>
+    <main class="admin-shell">
+        <header class="admin-header">
+            <a class="admin-brand" href="index.html" aria-label="LEX home">LEX</a>
+            <div class="admin-account">
+                <span id="adminName">Administrator</span>
+                <button class="admin-button admin-button-secondary" id="adminSignOut" type="button">Sign out</button>
+            </div>
+        </header>
+
+        <section class="admin-intro" aria-labelledby="pageTitle">
+            <p class="admin-eyebrow">LEX administration</p>
+            <h1 id="pageTitle">Lawyer applications</h1>
+            <p>Review professional details and verification documents before granting verified status.</p>
+        </section>
+
+        <section class="admin-review-notice" aria-label="Document review guidance">
+            <strong>Security check required</strong>
+            <p>Open and inspect each uploaded document using your trusted malware-scanning process before marking it clean. LEX does not scan files automatically.</p>
+        </section>
+
+        <section class="admin-queue" aria-labelledby="queueTitle">
+            <div class="admin-queue-heading">
+                <div>
+                    <h2 id="queueTitle">Pending review</h2>
+                    <p id="queueSummary">Loading applications…</p>
+                </div>
+                <button class="admin-button admin-button-secondary" id="refreshQueue" type="button">Refresh</button>
+            </div>
+            <p class="admin-status" id="adminStatus" role="status" aria-live="polite"></p>
+            <div class="admin-application-list" id="applicationList" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <dialog class="admin-document-dialog" id="documentDialog" aria-labelledby="documentTitle">
+        <div class="admin-dialog-heading">
+            <div>
+                <h2 id="documentTitle">Verification document</h2>
+                <p id="documentInfo">Secure document link expires after one minute.</p>
+            </div>
+            <button class="admin-icon-button" id="closeDocument" type="button" aria-label="Close document preview">×</button>
+        </div>
+        <iframe id="documentFrame" title="Lawyer verification document preview"></iframe>
+        <p class="admin-dialog-fallback">If the document cannot be previewed here, <a id="documentOpenLink" target="_blank" rel="noopener noreferrer">open it in a new tab</a>.</p>
+    </dialog>
+</body>
+</html>

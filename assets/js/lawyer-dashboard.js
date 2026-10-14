@@ -1,23 +1,9 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const readStoredJson = (key) => {
-        try {
-            const value = localStorage.getItem(key);
-            return value ? JSON.parse(value) : null;
-        } catch (error) {
-            console.error(`Unable to read ${key} from browser storage.`, error);
-            return null;
-        }
-    };
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = await window.lexApi.requireUser('lawyer');
+    if (!user) return;
 
-    const user = readStoredJson('lexUser');
-    const application = readStoredJson('lexLawyerApplication');
-    if (!user || user.role !== 'lawyer') {
-        window.location.replace('index.html');
-        return;
-    }
-
-    const name = application?.name || user.name || 'Lawyer';
-    const status = application?.verificationStatus === 'verified' ? 'Verified' : 'Pending verification';
+    const name = user.name || 'Lawyer';
+    const status = user.verified ? 'Verified' : 'Pending verification';
     const initials = name.trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0).toUpperCase()).join('') || 'L';
     const setText = (id, value) => {
         const element = document.getElementById(id);
@@ -32,6 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
         toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 3200);
     };
 
+    let application = null;
+    try {
+        application = (await window.lexApi.request('/api/v1/lawyer-applications/me')).application;
+    } catch (error) {
+        showToast(`Unable to load your application: ${error.message}`);
+    }
+
     setText('lawyerHeaderName', name);
     setText('lawyerWelcomeName', name.split(/\s+/)[0]);
     setText('lawyerHeaderStatus', status);
@@ -40,21 +33,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setText('profileName', name);
     setText('profileStatus', status);
     setText('leaderboardLawyerName', name);
-    setText('profileEmail', application?.email || user.email);
+    setText('profileEmail', user.email);
     setText('profileMobile', application?.mobile);
-    setText('profileBarRegistration', application?.barRegistration);
-    setText('profilePractice', application?.practiceArea);
+    setText('profileBarRegistration', application?.bar_registration);
+    setText('profilePractice', application?.practice_area);
     setText('profileJurisdiction', application?.jurisdiction);
-    setText('profileExperience', application?.experience ? `${application.experience} years` : '');
-    setText('summaryPractice', application?.practiceArea);
+    setText('profileExperience', application?.experience_years != null ? `${application.experience_years} years` : '');
+    setText('summaryPractice', application?.practice_area);
     setText('summaryJurisdiction', application?.jurisdiction);
-    setText('summaryExperience', application?.experience ? `${application.experience} years` : '');
+    setText('summaryExperience', application?.experience_years != null ? `${application.experience_years} years` : '');
 
-    if (application?.verificationStatus === 'verified') {
+    if (user.verified) {
         setText('verificationTitle', 'Verified lawyer');
-        setText('verificationDescription', 'Your profile is marked as verified in this demo.');
+        setText('verificationDescription', 'Your profile is marked as verified by LEX.');
         setText('verificationValue', 'Verified');
-        setText('verificationNote', 'Verification status is provided by this demo');
+        setText('verificationNote', 'Verification status is managed by LEX.');
         document.getElementById('verificationBanner').classList.add('is-verified');
     }
 
@@ -73,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
             link.setAttribute('aria-current', isActive ? 'page' : 'false');
         });
         section.scrollIntoView({ behavior: 'auto', block: 'start' });
+        if (sectionId === 'personal-chat') initializeDirectChats();
+        if (sectionId === 'common-chat') initializeLawyerLounge();
     };
 
     document.querySelectorAll('[data-section]').forEach(control => {
@@ -80,8 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('openCommonChat').addEventListener('click', () => showSection('common-chat'));
 
-    document.getElementById('lawyerSignOut').addEventListener('click', () => {
-        localStorage.removeItem('lexUser');
+    document.getElementById('lawyerSignOut').addEventListener('click', async () => {
+        try {
+            await window.lexApi.signOut();
+        } catch (error) {
+            alert(`Your local session was cleared, but server sign-out failed: ${error.message}`);
+            window.lexApi.clearSession();
+        }
         window.location.href = 'index.html';
     });
 
@@ -490,99 +490,153 @@ document.addEventListener('DOMContentLoaded', () => {
         if (incoming.length) showToast('Files are available in this tab only; they were not uploaded.');
     });
 
-    const conversations = [
-        {
-            id: '4821',
-            name: 'Anon #4821',
-            preview: 'Question about a rental deposit',
-            messages: [
-                { text: 'I moved out last week, but my landlord says they are keeping the full deposit for general wear.', from: 'client' },
-                { text: 'I can help explain the general steps. Please avoid sharing names, addresses, or documents here.', from: 'lawyer' }
-            ]
-        },
-        {
-            id: '3307',
-            name: 'Anon #3307',
-            preview: 'Question about unpaid overtime',
-            messages: [
-                { text: 'I asked about overtime pay and was dismissed soon after. What information should I keep?', from: 'client' }
-            ]
-        },
-        {
-            id: '9154',
-            name: 'Anon #9154',
-            preview: 'Question about a contractor advance',
-            messages: [
-                { text: 'The contractor stopped responding after I paid an advance.', from: 'client' }
-            ]
-        }
-    ];
-    let activeConversationId = conversations[0].id;
     const conversationList = document.getElementById('conversationList');
     const chatThread = document.getElementById('chatThread');
     const conversationSearch = document.getElementById('conversationSearch');
-    const renderConversationList = () => {
+    let directChannels = [];
+    let activeChannel = null;
+    let loungeChannel = null;
+    let directChatInitialized = false;
+    let loungeInitialized = false;
+
+    const appendStreamMessage = (container, message) => {
+        const bubble = document.createElement('div');
+        bubble.className = `lawyer-chat-message${message.user?.id === user.id ? ' is-lawyer' : ''}`;
+        bubble.textContent = message.text || '';
+        container.append(bubble);
+    };
+    const otherMember = channel => Object.values(channel.state.members || {})
+        .find(member => member.user_id !== user.id)?.user;
+    const renderDirectMessages = () => {
+        chatThread.replaceChildren();
+        if (!activeChannel) return;
+        activeChannel.state.messages.forEach(message => appendStreamMessage(chatThread, message));
+        chatThread.scrollTop = chatThread.scrollHeight;
+    };
+    const renderDirectChannels = () => {
         const query = conversationSearch.value.trim().toLowerCase();
         conversationList.replaceChildren();
-        conversations.filter(conversation => `${conversation.name} ${conversation.preview}`.toLowerCase().includes(query)).forEach(conversation => {
+        const matches = directChannels.filter(channel => {
+            const name = otherMember(channel)?.name || 'LEX member';
+            const latest = channel.state.messages[channel.state.messages.length - 1]?.text || '';
+            return `${name} ${latest}`.toLowerCase().includes(query);
+        });
+        if (!matches.length) {
+            const empty = document.createElement('li');
+            empty.className = 'lawyer-list-empty';
+            empty.textContent = query ? 'No matching conversations.' : 'No client conversations yet.';
+            conversationList.append(empty);
+            return;
+        }
+        matches.forEach(channel => {
             const item = document.createElement('li');
             const button = document.createElement('button');
             const title = document.createElement('strong');
             const preview = document.createElement('span');
             button.type = 'button';
-            button.classList.toggle('is-active', conversation.id === activeConversationId);
-            title.textContent = conversation.name;
-            preview.textContent = conversation.preview;
+            button.className = 'lawyer-conversation-button';
+            button.classList.toggle('is-active', channel.cid === activeChannel?.cid);
+            title.textContent = otherMember(channel)?.name || 'LEX member';
+            preview.textContent = channel.state.messages[channel.state.messages.length - 1]?.text || 'Start a conversation';
             button.append(title, preview);
-            button.addEventListener('click', () => {
-                activeConversationId = conversation.id;
-                renderConversationList();
-                renderConversation();
+            button.addEventListener('click', async () => {
+                activeChannel = channel;
+                await channel.watch();
+                setText('chatName', otherMember(channel)?.name || 'LEX member');
+                setText('chatAvatar', (otherMember(channel)?.name || 'LEX').slice(0, 2).toUpperCase());
+                setText('chatSubtitle', 'Secure Stream conversation');
+                renderDirectMessages();
+                renderDirectChannels();
             });
             item.append(button);
             conversationList.append(item);
         });
-        if (!conversationList.children.length) {
-            const empty = document.createElement('li');
-            empty.className = 'lawyer-list-empty';
-            empty.textContent = 'No matching conversations.';
-            conversationList.append(empty);
+    };
+    const initializeDirectChats = async () => {
+        if (directChatInitialized) return;
+        directChatInitialized = true;
+        try {
+            const { client } = await window.lexStreamChat.getClient();
+            directChannels = await client.queryChannels(
+                { type: 'messaging', members: { $in: [user.id] }, id: { $ne: 'lex-lawyer-lounge' } },
+                { last_message_at: -1 },
+                { watch: true, state: true, limit: 50 }
+            );
+            renderDirectChannels();
+            directChannels.forEach(channel => channel.on('message.new', () => {
+                renderDirectChannels();
+                if (activeChannel?.cid === channel.cid) renderDirectMessages();
+            }));
+            if (directChannels.length) {
+                activeChannel = directChannels[0];
+                await activeChannel.watch();
+                setText('chatName', otherMember(activeChannel)?.name || 'LEX member');
+                setText('chatAvatar', (otherMember(activeChannel)?.name || 'LEX').slice(0, 2).toUpperCase());
+                setText('chatSubtitle', 'Secure Stream conversation');
+                renderDirectMessages();
+                renderDirectChannels();
+            } else {
+                setText('chatSubtitle', 'New conversations will appear here.');
+            }
+        } catch (error) {
+            const status = document.getElementById('chatStatus');
+            status.textContent = `Unable to load conversations: ${error.message}`;
+            status.hidden = false;
         }
     };
-    const renderConversation = () => {
-        const conversation = conversations.find(item => item.id === activeConversationId);
-        if (!conversation) return;
-        setText('chatName', conversation.name);
-        setText('chatAvatar', conversation.id.slice(0, 2));
-        setText('chatSubtitle', 'Example conversation · not connected');
-        chatThread.replaceChildren();
-        conversation.messages.forEach(message => {
-            const bubble = document.createElement('div');
-            bubble.className = `lawyer-chat-message${message.from === 'lawyer' ? ' is-lawyer' : ''}`;
-            bubble.textContent = message.text;
-            chatThread.append(bubble);
-        });
-        chatThread.scrollTop = chatThread.scrollHeight;
-    };
-    conversationSearch.addEventListener('input', renderConversationList);
-    document.getElementById('chatForm').addEventListener('submit', event => {
+    conversationSearch.addEventListener('input', renderDirectChannels);
+    document.getElementById('chatForm').addEventListener('submit', async event => {
         event.preventDefault();
         const input = document.getElementById('chatMessageInput');
         const text = input.value.trim();
-        if (!text) return;
-        const conversation = conversations.find(item => item.id === activeConversationId);
-        if (!conversation) return;
-        conversation.messages.push({ text, from: 'lawyer' });
-        conversation.preview = text;
-        input.value = '';
-        renderConversationList();
-        renderConversation();
-        const chatStatus = document.getElementById('chatStatus');
-        chatStatus.textContent = 'Demo message added to this page session only; it was not sent.';
-        chatStatus.hidden = false;
+        if (!text || !activeChannel) return;
+        try {
+            await activeChannel.sendMessage({ text });
+            input.value = '';
+            renderDirectChannels();
+        } catch (error) {
+            const status = document.getElementById('chatStatus');
+            status.textContent = `Message could not be sent: ${error.message}`;
+            status.hidden = false;
+        }
     });
+
+    const initializeLawyerLounge = async () => {
+        if (loungeInitialized) return;
+        loungeInitialized = true;
+        const status = document.getElementById('lawyerLoungeStatus');
+        const thread = document.getElementById('lawyerLoungeThread');
+        try {
+            await window.lexApi.request('/api/v1/chat/lawyer-lounge', { method: 'POST' });
+            const { client } = await window.lexStreamChat.getClient();
+            loungeChannel = client.channel('messaging', 'lex-lawyer-lounge');
+            await loungeChannel.watch();
+            status.textContent = 'Connected. Do not share confidential client information in this shared room.';
+            const render = () => {
+                thread.replaceChildren();
+                loungeChannel.state.messages.forEach(message => appendStreamMessage(thread, message));
+                thread.scrollTop = thread.scrollHeight;
+            };
+            render();
+            loungeChannel.on('message.new', render);
+            document.getElementById('lawyerLoungeForm').addEventListener('submit', async event => {
+                event.preventDefault();
+                const input = document.getElementById('lawyerLoungeInput');
+                const text = input.value.trim();
+                if (!text) return;
+                try {
+                    await loungeChannel.sendMessage({ text });
+                    input.value = '';
+                } catch (error) {
+                    status.textContent = `Message could not be sent: ${error.message}`;
+                }
+            });
+        } catch (error) {
+            status.textContent = error.message;
+        }
+    };
     document.getElementById('summarizeChat').addEventListener('click', () => {
-        showToast('AI summarization is not connected in this demo.');
+        showToast('AI summarization is not available for private conversations.');
     });
     document.getElementById('lawyerUpgradeButton').addEventListener('click', () => {
         showToast('Premium plans and payments are not connected in this demo.');
@@ -590,7 +644,4 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-chat-unavailable]').forEach(button => {
         button.addEventListener('click', () => showToast(`${button.dataset.chatUnavailable} are not connected in this demo.`));
     });
-    renderConversationList();
-    renderConversation();
-
 });

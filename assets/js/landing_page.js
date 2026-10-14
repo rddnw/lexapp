@@ -46,15 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Check if user is already logged in -> Redirect directly to Dashboard
-    const existingUser = JSON.parse(localStorage.getItem('lexUser'));
-    if (existingUser) {
-        window.location.href = existingUser.role === 'lawyer' ? 'lawyer-dashboard.html' : 'dashboard.html';
-        return;
+    if (window.lexApi.hasSession()) {
+        window.lexApi.requireUser().then(existingUser => {
+            if (existingUser) {
+                window.location.replace(existingUser.role === 'lawyer' ? 'lawyer-dashboard.html' : 'dashboard.html');
+            }
+        });
+    } else {
+        localStorage.removeItem('lexUser');
     }
 
     // Validations
-    const nicRegex = /^([0-9]{9}[xXvV]|[0-9]{12})$/;
-    const phoneRegex = /^(07[0-1,2,4,5,6,7,8][0-9]{7})$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     let selectedRole = 'client';
@@ -72,49 +74,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 roleButton.setAttribute('aria-pressed', String(isSelected));
             });
 
-            regForm.hidden = selectedRole === 'lawyer';
-            lawyerContinue.hidden = selectedRole !== 'lawyer';
+            regForm.hidden = false;
+            lawyerContinue.hidden = true;
         });
     });
 
     // Sign up form submission
     if (regForm) {
-        regForm.addEventListener('submit', (e) => {
+        regForm.addEventListener('submit', async (e) => {
         e.preventDefault(); 
         let isValid = true;
 
-        const nicRegex = /^([0-9]{9}[xXvV]|[0-9]{12})$/;
-        const phoneRegex = /^(07[0-1,2,4,5,6,7,8][0-9]{7})$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        // Correct IDs fetching 
         const fullName = document.getElementById('fullName');
-        const mobileNum = document.getElementById('mobileNum');
-        const nicNum = document.getElementById('nicNum');
         const emailAdd = document.getElementById('emailAdd');
-        const passWord = document.getElementById('password') || document.getElementById('passWord');
+        const passWord = document.getElementById('passWord');
 
-        // Validation Checks
         if (!fullName || !fullName.value.trim()) { if(fullName) setError(fullName, 'Please enter your full legal name.'); isValid = false; } else { clearError(fullName); }
-        if (!mobileNum || !phoneRegex.test(mobileNum.value.trim())) { if(mobileNum) setError(mobileNum, 'Enter a valid SL mobile number.'); isValid = false; } else { clearError(mobileNum); }
-        if (!nicNum || !nicRegex.test(nicNum.value.trim())) { if(nicNum) setError(nicNum, 'Enter a valid NIC number.'); isValid = false; } else { clearError(nicNum); }
         if (!emailAdd || !emailRegex.test(emailAdd.value.trim())) { if(emailAdd) setError(emailAdd, 'Please enter a valid email.'); isValid = false; } else { clearError(emailAdd); }
-        if (!passWord || passWord.value.length < 6) { if(passWord) setError(passWord, 'Password must be at least 6 characters.'); isValid = false; } else { clearError(passWord); }
+        if (!passWord || passWord.value.length < 8) { if(passWord) setError(passWord, 'Password must be at least 8 characters.'); isValid = false; } else { clearError(passWord); }
 
         
         if (isValid) {
-            const userData = {
-                name: fullName.value.trim(),
-                email: emailAdd.value.trim(),
-                role: selectedRole,
-                isPremium: false
-            };
-            
-            localStorage.setItem('lexUser', JSON.stringify(userData));
-            regForm.reset();
-            
-            // Redirect to Dashboard
-            window.location.href = 'dashboard.html';
+            const submitButton = regForm.querySelector('[type="submit"]');
+            submitButton.disabled = true;
+            try {
+                const result = await window.lexApi.request('/api/v1/auth/register', {
+                    method: 'POST',
+                    skipAuth: true,
+                    body: JSON.stringify({
+                        full_name: fullName.value.trim(),
+                        email: emailAdd.value.trim(),
+                        password: passWord.value,
+                        role: selectedRole
+                    })
+                });
+                if (result.confirmation_required) {
+                    alert('Check your email to confirm your account, then sign in.');
+                    regForm.reset();
+                    closeModal(signUpModal);
+                    return;
+                }
+                window.lexApi.setSession(result);
+                regForm.reset();
+                window.location.href = selectedRole === 'lawyer' ? 'lawyer-registration.html' : 'dashboard.html';
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                submitButton.disabled = false;
+            }
         }
         });
     }
@@ -141,21 +148,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sign In Form Submission
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const loginEmail = document.getElementById('loginEmail');
+            const loginPassword = document.getElementById('loginPassword');
             if (emailRegex.test(loginEmail.value.trim())) {
-                
-                
-                let existingUser = JSON.parse(localStorage.getItem('lexUser'));
-                if(!existingUser) {
-                    existingUser = { name: "Client Account", email: loginEmail.value.trim(), isPremium: false };
+                const submitButton = loginForm.querySelector('[type="submit"]');
+                submitButton.disabled = true;
+                try {
+                    const result = await window.lexApi.request('/api/v1/auth/login', {
+                        method: 'POST',
+                        skipAuth: true,
+                        body: JSON.stringify({
+                            email: loginEmail.value.trim(),
+                            password: loginPassword.value
+                        })
+                    });
+                    window.lexApi.setSession(result);
+                    loginForm.reset();
+                    closeModal(signInModal);
+                    window.location.href = result.user.role === 'lawyer' ? 'lawyer-dashboard.html' : 'dashboard.html';
+                } catch (error) {
+                    alert(error.message);
+                } finally {
+                    submitButton.disabled = false;
                 }
-                
-                localStorage.setItem('lexUser', JSON.stringify(existingUser));
-                loginForm.reset();
-                closeModal(signInModal);
-                window.location.href = existingUser.role === 'lawyer' ? 'lawyer-dashboard.html' : 'dashboard.html';
             } else {
                 alert("Please enter a valid email.");
             }

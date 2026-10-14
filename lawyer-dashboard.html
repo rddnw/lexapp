@@ -178,7 +178,14 @@
 
             <section class="lawyer-content-section" id="common-chat" hidden>
                 <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Common Chat</h1><p>A shared room for professional discussion with other verified lawyers.</p></div>
-                <div class="lawyer-panel lawyer-placeholder"><h2>Common Chat is not connected yet</h2><p>When messaging is available, you’ll be able to discuss general legal topics here.</p></div>
+                <div class="lawyer-panel lawyer-chat-panel">
+                    <p id="lawyerLoungeStatus" role="status">Connect to the verified-lawyer discussion room.</p>
+                    <div class="lawyer-chat-thread" id="lawyerLoungeThread" role="log" aria-live="polite"></div>
+                    <form class="lawyer-chat-composer" id="lawyerLoungeForm">
+                        <input id="lawyerLoungeInput" type="text" maxlength="2000" placeholder="Write a general professional message" aria-label="Lawyer lounge message">
+                        <button type="submit" class="lawyer-primary-button">Send</button>
+                    </form>
+                </div>
             </section>
 
             <section class="lawyer-content-section" id="notifications" hidden>
@@ -275,8 +282,8 @@
             </section>
 
             <section class="lawyer-content-section" id="personal-chat" hidden>
-                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Personal Chat</h1><p>Example one-to-one conversations with clients shown as anonymous IDs.</p></div>
-                <p class="lawyer-storage-warning">Sample conversations only. Messages typed here stay in this page session and are not sent to a client. Do not enter real client information.</p>
+                <div class="lawyer-page-heading"><p class="lawyer-eyebrow">Workspace</p><h1>Personal Chat</h1><p>Secure one-to-one conversations with clients.</p></div>
+                <p class="lawyer-storage-warning">Messages are delivered through Stream. Avoid sharing information that is not necessary for the consultation.</p>
                 <div class="lawyer-chat-shell">
                     <aside class="lawyer-chat-sidebar" aria-label="Conversations">
                         <label class="lawyer-chat-search">Search conversations<input type="search" id="conversationSearch" placeholder="Search conversations"></label>
@@ -289,7 +296,7 @@
                         <form class="lawyer-chat-composer" id="chatForm">
                             <button type="button" class="lawyer-chat-tool-button" data-chat-unavailable="Document attachments" aria-label="Attach document">Attach</button>
                             <button type="button" class="lawyer-chat-tool-button" data-chat-unavailable="Camera" aria-label="Open camera">Camera</button>
-                            <input id="chatMessageInput" type="text" maxlength="500" placeholder="Type a demo message" aria-label="Message">
+                            <input id="chatMessageInput" type="text" maxlength="2000" placeholder="Type a message" aria-label="Message">
                             <button type="button" class="lawyer-chat-tool-button" data-chat-unavailable="Voice notes" aria-label="Record voice note">Voice</button>
                             <button type="submit" class="lawyer-primary-button">Send</button>
                         </form>
@@ -325,5 +332,9 @@
     </div>
     <button class="lawyer-floating-chat" type="button" id="openCommonChat" aria-label="Open Common Chat"><span class="lawyer-sr-only">Common Chat</span>Chat</button>
     <div class="lawyer-toast" id="lawyerToast" role="status" aria-live="polite"></div>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/stream-chat.js"></script>
+    <script src="assets/js/lawyer-dashboard.js"></script>
 </body>
 </html>

@@ -1,16 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('lexUser'));
-
-   
-    if (!user) {
-        window.location.href = 'index.html';
-        return;
-    }
-
-    if (user.role === 'lawyer') {
-        window.location.replace('lawyer-dashboard.html');
-        return;
-    }
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = await window.lexApi.requireUser('client');
+    if (!user) return;
 
     // Load User Details
     const firstName = user.name.split(" ")[0];
@@ -23,6 +13,111 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Sidebar Navigation Switching
+    let verifiedLawyersLoaded = false;
+    let activeClientChat = null;
+    const boundClientChannels = new Set();
+    const lawyerList = document.getElementById('verifiedLawyersList');
+    const lawyerListStatus = document.getElementById('verifiedLawyersStatus');
+    const clientChatModal = document.getElementById('clientChatModal');
+
+    function renderClientChatMessages() {
+        const thread = document.getElementById('clientChatThread');
+        thread.replaceChildren();
+        if (!activeClientChat) return;
+        activeClientChat.state.messages.forEach(message => {
+            const bubble = document.createElement('div');
+            bubble.className = `client-chat-message${message.user?.id === user.id ? ' is-own' : ''}`;
+            bubble.textContent = message.text || '';
+            thread.appendChild(bubble);
+        });
+        thread.scrollTop = thread.scrollHeight;
+    }
+
+    async function openClientChat(lawyer) {
+        const status = document.getElementById('clientChatStatus');
+        const thread = document.getElementById('clientChatThread');
+        document.getElementById('clientChatTitle').textContent = `Chat with ${lawyer.full_name}`;
+        status.textContent = 'Connecting to secure chat...';
+        thread.replaceChildren();
+        clientChatModal.classList.add('is-visible');
+        clientChatModal.setAttribute('aria-hidden', 'false');
+        try {
+            const conversation = await window.lexApi.request(
+                `/api/v1/chat/direct/${encodeURIComponent(lawyer.id)}`,
+                { method: 'POST' }
+            );
+            const { client } = await window.lexStreamChat.getClient();
+            activeClientChat = client.channel(conversation.channel_type, conversation.channel_id);
+            await activeClientChat.watch();
+            status.textContent = 'Connected through Stream. Avoid sharing unnecessary sensitive information.';
+            renderClientChatMessages();
+            if (!boundClientChannels.has(activeClientChat.cid)) {
+                activeClientChat.on('message.new', renderClientChatMessages);
+                boundClientChannels.add(activeClientChat.cid);
+            }
+            document.getElementById('clientChatInput').focus();
+        } catch (error) {
+            status.textContent = `Unable to start this conversation: ${error.message}`;
+        }
+    }
+
+    async function loadVerifiedLawyers() {
+        if (verifiedLawyersLoaded) return;
+        lawyerListStatus.textContent = 'Loading verified profiles...';
+        try {
+            const result = await window.lexApi.request('/api/v1/lawyers');
+            lawyerList.replaceChildren();
+            if (!result.lawyers.length) {
+                lawyerListStatus.textContent = 'There are no verified lawyer profiles available yet.';
+                verifiedLawyersLoaded = true;
+                return;
+            }
+            result.lawyers.forEach(lawyer => {
+                const card = document.createElement('div');
+                card.className = 'verified-lawyer-card';
+                const name = document.createElement('strong');
+                name.textContent = lawyer.full_name;
+                const details = document.createElement('span');
+                details.textContent = [lawyer.practice_area, lawyer.jurisdiction]
+                    .filter(Boolean)
+                    .join(' · ') || 'Verified LEX lawyer';
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = 'Start secure chat';
+                button.addEventListener('click', () => openClientChat(lawyer));
+                card.append(name, details, button);
+                lawyerList.appendChild(card);
+            });
+            lawyerListStatus.textContent = 'Only lawyer accounts verified by LEX are shown.';
+            verifiedLawyersLoaded = true;
+        } catch (error) {
+            lawyerListStatus.textContent = `Unable to load lawyers: ${error.message}`;
+        }
+    }
+
+    document.getElementById('clientChatClose').addEventListener('click', () => {
+        clientChatModal.classList.remove('is-visible');
+        clientChatModal.setAttribute('aria-hidden', 'true');
+    });
+    clientChatModal.addEventListener('click', event => {
+        if (event.target === clientChatModal) {
+            clientChatModal.classList.remove('is-visible');
+            clientChatModal.setAttribute('aria-hidden', 'true');
+        }
+    });
+    document.getElementById('clientChatForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const input = document.getElementById('clientChatInput');
+        const text = input.value.trim();
+        if (!text || !activeClientChat) return;
+        try {
+            await activeClientChat.sendMessage({ text });
+            input.value = '';
+        } catch (error) {
+            document.getElementById('clientChatStatus').textContent = `Message could not be sent: ${error.message}`;
+        }
+    });
+
     document.querySelectorAll('.dash-nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -33,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const target = link.getAttribute('data-tab');
             const targetSection = document.getElementById(target);
             if (targetSection) targetSection.style.display = 'block';
+            if (target === 'tab-lawyers') loadVerifiedLawyers();
         });
     });
 
@@ -76,16 +172,35 @@ document.addEventListener('DOMContentLoaded', () => {
         aiMessages.scrollTop = aiMessages.scrollHeight;
     }
 
-    function sendAiMessage() {
+    async function sendAiMessage() {
         const question = aiInput.value.trim();
         if (!question) return;
 
         appendAiMessage(question, 'user-msg');
         aiInput.value = '';
-        appendAiMessage(
-            'This is a front-end demo and is not connected to a live AI service, so I can’t analyze your question yet. Please don’t share confidential details. You can browse document tools or find a lawyer in your workspace.',
-            'bot-msg'
-        );
+        aiSend.disabled = true;
+        aiInput.disabled = true;
+        const pendingMessage = document.createElement('div');
+        pendingMessage.className = 'ai-msg bot-msg';
+        pendingMessage.textContent = 'Searching the available Sri Lankan legal references...';
+        aiMessages.appendChild(pendingMessage);
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+        try {
+            const response = await window.lexApi.request('/api/v1/assistant/messages', {
+                method: 'POST',
+                body: JSON.stringify({ question })
+            });
+            pendingMessage.textContent = response.sources && response.sources.length
+                ? `${response.answer}\n\nReferences: ${response.sources.join(', ')}`
+                : response.answer;
+        } catch (error) {
+            pendingMessage.textContent = `The assistant could not answer: ${error.message}`;
+        } finally {
+            aiSend.disabled = false;
+            aiInput.disabled = false;
+            aiInput.focus();
+            aiMessages.scrollTop = aiMessages.scrollHeight;
+        }
     }
 
     aiSend.addEventListener('click', sendAiMessage);
@@ -102,8 +217,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Logout
-    document.getElementById('dashLogoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('lexUser');
+    document.getElementById('dashLogoutBtn').addEventListener('click', async () => {
+        try {
+            await window.lexApi.signOut();
+        } catch (error) {
+            alert(`Your local session was cleared, but server sign-out failed: ${error.message}`);
+            window.lexApi.clearSession();
+        }
         window.location.href = 'index.html';
     });
 
