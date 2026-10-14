@@ -1,0 +1,65 @@
+services:
+  - type: web
+    name: lexapp-backend
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: STREAM_API_KEY
+        sync: false
+      - key: STREAM_API_SECRET
+        sync: false
+      - key: LEGAL_AI_API_KEY
+        sync: false
+      - key: LEGAL_AI_API_URL
+        fromService:
+          type: web
+          name: lexapp-legal-assistant
+          property: host
+      - key: CORS_ORIGINS
+        fromService:
+          type: static
+          name: lexapp-frontend
+          property: host
+
+  - type: web
+    name: lexapp-legal-assistant
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: LLM-for-legal-advices
+    buildCommand: pip install -r requirements.txt && python sync_drive_resources.py && python Code2_create_vector_database.py
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: GROQ_API_KEY
+        sync: false
+      - key: LEGAL_AI_API_KEY
+        sync: false
+
+  - type: static
+    name: lexapp-frontend
+    region: singapore
+    rootDir: .
+    buildCommand: node scripts/render_static_build.js
+    staticPublishPath: dist
+    envVars:
+      - key: LEX_API_BASE_URL
+        fromService:
+          type: web
+          name: lexapp-backend
+          property: host

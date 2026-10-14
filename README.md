@@ -104,6 +104,23 @@ initial backend.
 Use TLS, a private network between the LEX API and model API, production rate limits,
 monitoring, backup/recovery, and privacy/legal review before launch.
 
+## Deploy to Render
+
+The root [`render.yaml`](render.yaml) defines the static frontend, LEX API, and legal-assistant
+API. Create a Render Blueprint from the `rddnw/lexapp` repository and deploy its `main`
+branch. The frontend build publishes only the site pages and `assets/`; it does not expose
+the backend source or configuration files.
+
+Enter each prompted credential in Render's private environment-variable form. The same
+`LEGAL_AI_API_KEY` must be entered for both Python services. Do not commit filled `.env`
+files or credentials in `.env.example`. The legal-assistant build downloads the configured
+public legal corpus and creates its vector index during deployment.
+
+The Blueprint uses Render's free web-service plan for an initial prototype. Free services
+can sleep while idle, and the legal-assistant embedding model/index may exceed free build or
+runtime limits. If deployment or inference fails from resource limits, use a larger plan.
+Review Render's current pricing before upgrading.
+
 ## Mobile app preview
 
 The native client-app starter is in `mobile/`. From that folder, run:

@@ -517,7 +517,7 @@ async def assistant_message(
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(90.0, connect=10.0)) as client:
             response = await client.post(
-                settings.legal_ai_api_url,
+                settings.legal_ai_chat_url,
                 json={"question": payload.question.strip()},
                 headers={"Authorization": f"Bearer {settings.legal_ai_api_key}"},
             )
